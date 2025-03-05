@@ -11,3 +11,9 @@ class User(Base):
     name = Column(String, unique=True)
     description = Column(String)
     description_keywords = Column(String)
+
+
+class Query(Base):
+    __tablename__ = "Queries"
+    id = Column(Integer, primary_key=True, index=True)
+    

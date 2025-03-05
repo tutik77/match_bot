@@ -4,7 +4,7 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sqlalchemy.sql import case
 
 from database import get_session
 from settings import settings
@@ -77,9 +77,22 @@ class SearchService:
     @staticmethod
     async def search_users_by_keywords(keywords: list):
         async for session in get_session():
-            search_conditions = [User.description_keywords.ilike(f'%{keyword}%') for keyword in keywords]
-            result = await session.execute(select(User).filter(or_(*search_conditions)).limit(7))
-            
+            match_count = func.sum(
+                case(
+                    *[(User.description_keywords.ilike(f'%{kw}%'), 1) for kw in keywords],
+                    else_=0
+                )
+            ).label("match_count")
+
+            query = (
+                select(User, match_count)
+                .filter(or_(*[User.description_keywords.ilike(f'%{kw}%') for kw in keywords]))
+                .group_by(User.id)
+                .order_by(match_count.desc())
+                .limit(7)
+            )
+
+            result = await session.execute(query)
             users = result.scalars().all()
-            
+
         return users

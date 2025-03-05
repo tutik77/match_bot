@@ -19,7 +19,7 @@ async def start(message: types.Message, state: FSMContext):
         user = await RegisterService.get_user_by_tg_id(message.from_user.id, session)
     
     if user:
-        await message.answer("Вы уже зарегистрированы! Можешь искать профили.")
+        await message.answer("Вы уже зарегистрированы! Чтоб искать профили, введи команду /search.")
     else:
         await message.answer("Привет! Давай зарегистрируем тебя. Введи свое имя:")
         await state.set_state(RegisterStates.name)
@@ -47,4 +47,4 @@ async def enter_description(message: types.Message, state: FSMContext):
     async for session in get_session():
         await RegisterService.create_user(new_user, session)
     
-    await message.answer("Ты успешно зарегистрирован! Можешь искать профили.")
+    await message.answer("Ты успешно зарегистрирован! Чтоб искать профили, введи команду /search.")
