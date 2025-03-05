@@ -8,7 +8,8 @@ from sqlalchemy.sql import case
 
 from database import get_session
 from settings import settings
-from tables import User
+from tables import User, UserQuery
+
 
 os.environ['OPENAI_API_KEY'] = settings.openai_api_key
 openai_api_key = settings.openai_api_key
@@ -59,7 +60,6 @@ class RegisterService:
     @staticmethod
     async def create_user(user_data: dict, session: AsyncSession):
         user_data["description_keywords"] = await gpt_service.get_keywords_from_description(user_data["description"])
-        print(user_data["description_keywords"]) # DEBUG
         new_user = User(
             user_tg_id=user_data["user_tg_id"],
             username=user_data["username"],
@@ -96,3 +96,10 @@ class SearchService:
             users = result.scalars().all()
 
         return users
+
+    @staticmethod
+    async def add_query_to_db(query: str, user_tg_id: int):
+        async for session in get_session():
+            user_query = UserQuery(user_tg_id=user_tg_id, query_text=query)
+            session.add(user_query)
+            await session.commit()

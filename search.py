@@ -20,6 +20,9 @@ async def search(message: types.Message, state: FSMContext):
 @router.message(SearchStates.waiting_for_query)
 async def search2(message: types.Message):
     query = message.text
+    await search_service.add_query_to_db(query, message.from_user.id)
+    print("Query added to db!") # DEBUG
+
     keywords = await gpt_service.get_keywords_from_query(query)
     users = await search_service.search_users_by_keywords(keywords)
  

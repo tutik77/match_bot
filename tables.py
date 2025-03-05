@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, Text, BigInteger
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String, Boolean, Text, BigInteger, ForeignKey
+from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
@@ -13,7 +13,11 @@ class User(Base):
     description_keywords = Column(String)
 
 
-class Query(Base):
-    __tablename__ = "Queries"
+class UserQuery(Base):
+    __tablename__ = "UserQueries"
+
     id = Column(Integer, primary_key=True, index=True)
-    
+    user_tg_id = Column(BigInteger, ForeignKey("Users.user_tg_id", ondelete="CASCADE"), nullable=False)
+    query_text = Column(String, nullable=False)
+
+    user = relationship("User", backref="queries")
