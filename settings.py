@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    database_url: str
     openai_api_key: str
     bot_token: str
     db_host: str
