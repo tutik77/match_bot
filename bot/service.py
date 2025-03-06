@@ -87,7 +87,7 @@ class SearchService:
             query = (
                 select(User, match_count)
                 .filter(or_(*[User.description_keywords.ilike(f'%{kw}%') for kw in keywords]))
-                .group_by(User.id)
+                .group_by(User.user_tg_id)
                 .order_by(match_count.desc())
                 .limit(7)
             )
@@ -100,6 +100,6 @@ class SearchService:
     @staticmethod
     async def add_query_to_db(query: str, user_tg_id: int):
         async for session in get_session():
-            user_query = UserQuery(user_tg_id=user_tg_id, query_text=query)
+            user_query = UserQuery(query_text=query, user_tg_id=user_tg_id)
             session.add(user_query)
             await session.commit()
